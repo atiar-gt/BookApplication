@@ -1,4 +1,6 @@
 package com.example.BookApplication.Controller;
+import com.example.BookApplication.DTO.RegisterRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.BookApplication.DTO.AuthRequest;
@@ -28,7 +30,7 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
 
         User user = new User();
         user.setUsername(request.getUsername());
@@ -43,23 +45,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @RequestBody AuthRequest request) {
-        log.info("auth", request);
-        System.out.println(request.getUsername());
 
         User user = (User) userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println(user);
-        System.out.println("user found");
-        System.out.println(passwordEncoder.matches(request.getPassword(), user.getPassword()));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        System.out.println("Exception working");
-
         String token = jwtUtil.generateToken(user.getUsername());
-//        String token = "1231231sdfdsdfsd";
         return ResponseEntity.ok(new AuthResponse(token));
 
     }

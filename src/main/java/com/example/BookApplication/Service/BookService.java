@@ -16,13 +16,7 @@ public class BookService {
     private BookRepository bookRepository;
 
     public Book addBook(Book book) {
-
-        log.info("Saving book to database: {}", book);
-
         Book savedBook = bookRepository.save(book);
-
-        log.info("Saved book with ID: {}", savedBook.getId());
-
         return savedBook;
     }
 
