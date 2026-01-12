@@ -1,7 +1,12 @@
 package com.example.BookApplication.Controller;
 
+import com.example.BookApplication.DTO.BookRequest;
 import com.example.BookApplication.Entity.Book;
+import com.example.BookApplication.Entity.User;
+import com.example.BookApplication.Respository.UserRepository;
+import com.example.BookApplication.Security.SecurityUtil;
 import com.example.BookApplication.Service.BookService;
+import com.example.BookApplication.Service.CurrentUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +20,41 @@ import java.util.List;
 public class BookController {
 
     public final BookService bookService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, UserRepository userRepository, CurrentUserService currentUserService) {
         this.bookService = bookService;
+        this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
+    private User getCurrentUser() {
+        String username = SecurityUtil.getCurrentUsername();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    private final CurrentUserService currentUserService;
 
     @PostMapping("/addBook")
-    public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        Book savedBook = bookService.addBook(book);
-        return ResponseEntity.ok(savedBook);
+    public ResponseEntity<Book> addBook(@RequestBody BookRequest request) {
+
+        User user = currentUserService.get();
+
+        Book book = new Book();
+        book.setTitle(request.getTitle());
+        book.setAuthor(request.getAuthor());
+        book.setGenre(request.getGenre());
+        book.setImageUrl(request.getImageUrl());
+//        book.setGoodreadsId(request.getGoodreadsId());
+        book.setGoodreadsRating(request.getGoodreadsRating());
+        book.setCreatedBy(user);
+
+        return ResponseEntity.ok(bookService.addBook(book));
     }
+
 
     @GetMapping("/getBooks")
     public ResponseEntity<List<Book>> getAllBooks() {

@@ -1,21 +1,33 @@
 package com.example.BookApplication.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Table(name = "book")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book {
+
     @Id
-    @GeneratedValue
-    public Integer id;
-    public String title;
-    public String author;
-    public String genre;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String author;
+    private String genre;
+    private String title;
+
+    private Double goodreadsRating;
+    private String imageUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 }
+
+

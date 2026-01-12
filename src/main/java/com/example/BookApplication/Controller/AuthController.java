@@ -46,7 +46,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(
             @RequestBody AuthRequest request) {
 
-        User user = (User) userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
